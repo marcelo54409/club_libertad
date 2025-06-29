@@ -46,5 +46,34 @@ class AuthDatasourceImpl implements AuthDataSource {
       throw Exception();
     }
   }
+@override
+Future<User> register(String nombre, String apellido, String correo, String password) async {
+  try {
+    final response = await dio.post('register', data: {
+      'nombre': nombre,
+      'apellido': apellido,
+      'correo': correo,
+      'password': password,
+    });
+
+    final user = UserMapper.userJsonToEntity(response.data);
+    final userKey = jsonEncode(response.data);
+    await KeyValueStorageServiceImpl().setKeyValue('user', userKey);
+    return user;
+  } on DioException catch (e) {
+    if (e.response?.statusCode == 400) {
+      // Suponiendo que el backend devuelve errores tipo 400 para validaciones
+      throw CustomError(e.response?.data['message'] ?? 'Datos inválidos');
+    }
+
+    if (e.type == DioExceptionType.connectionTimeout) {
+      throw CustomError("Revisar conexión a internet");
+    }
+
+    rethrow;
+  } catch (e) {
+    throw CustomError("Error inesperado al registrar");
+  }
+}
 
 }

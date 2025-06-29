@@ -1,8 +1,10 @@
+import 'package:club_libertad_front/ui/ranking/ranking_screen.dart';
 import 'package:club_libertad_front/ui/widgets/march_info.dart';
 import 'package:club_libertad_front/ui/widgets/march_summary.dart';
 import 'package:club_libertad_front/ui/widgets/match_info_card.dart';
 import 'package:club_libertad_front/ui/widgets/player_info.dart';
 import 'package:club_libertad_front/ui/widgets/players_stats_card.dart';
+import 'package:club_libertad_front/ui/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
 
 class InicioScreen extends StatelessWidget {
@@ -14,11 +16,11 @@ class InicioScreen extends StatelessWidget {
       playerName: 'Juan Pérez',
       playerCountry: 'Perú',
       playerPosition: 1,
-      playerAvatar: 'assets/images/jugador.png',
+      playerAvatar: 'assets/images/escudo.png',
       opponentName: 'Carlos Gómez',
       opponentCountry: 'Argentina',
       opponentPosition: 2,
-      opponentAvatar: 'assets/images/oponente.png',
+      opponentAvatar: 'assets/images/escudo.png',
     );
     final players = [
       PlayerStats(
@@ -30,7 +32,68 @@ class InicioScreen extends StatelessWidget {
         wins: 10,
         gamesPlayed: 12,
       ),
-      // ... más players
+    ];
+    final List<MatchSummary> matchSummaryList = [
+      MatchSummary(
+        imagePath: 'assets/images/escudo.png',
+        name: 'Carlos Gómez',
+        position: 'Delantero',
+        score: 3,
+        isInFavor: true,
+        date: '28/06/2025',
+        time: '17:00',
+      ),
+      MatchSummary(
+        imagePath: 'assets/images/escudo.png',
+        name: 'Luis Torres',
+        position: 'Defensa',
+        score: 1,
+        isInFavor: false,
+        date: '29/06/2025',
+        time: '16:00',
+      ),
+    ];
+    final List<MatchInfoCard> matchInfoList = [
+      MatchInfoCard(
+        title: 'Torneo Verano',
+        phase: 'Octavos de final',
+        playersRemaining: 8,
+        totalPlayers: 16,
+        nextMatchDate: '30/06/2025',
+        circleText: 'Semifinal',
+      ),
+      MatchInfoCard(
+        title: 'Torneo Primavera',
+        phase: 'Semifinal',
+        playersRemaining: 4,
+        totalPlayers: 16,
+        nextMatchDate: '03/07/2025',
+        circleText: 'Final',
+      ),
+    ];
+    final statsA = [5, 12, 28];
+    final statsB = [3, 15, 22];
+
+    final statColorsA = PlayerRow.getStatColors(statsA, statsB);
+    final statColorsB = PlayerRow.getStatColors(statsB, statsA);
+
+    final List<PlayerRow> playersRow = [
+      PlayerRow(
+        name: 'Juan Pérez',
+        country: 'Perú',
+        position: 1,
+        avatarPath: 'assets/images/escudo.png',
+        stats: statsA,
+        statColors: statColorsA,
+      ),
+      PlayerRow(
+        name: 'María Gómez',
+        country: 'Argentina',
+        position: 2,
+        avatarPath: 'assets/images/escudo.png',
+        stats: statsB,
+        statColors: statColorsB,
+      ),
     ];
 
     return Scaffold(
@@ -39,67 +102,8 @@ class InicioScreen extends StatelessWidget {
           child: Column(
             children: [
               // Topbar
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.black12, // Línea inferior ligera
-                      width: 1,
-                    ),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12, // Sombra ligera
-                      blurRadius: 4,
-                      offset: Offset(0, 2), // Desplazamiento de la sombra
-                    ),
-                  ],
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/images/escudo.png',
-                        width: 40,
-                        height: 40,
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment
-                            .start, // Para que alineen a la izquierda
-                        children: const [
-                          Text(
-                            'Club Libertad',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            'Tenis Trujillo',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.notifications_active_rounded),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.settings),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              TopBarClub(), // 👈 Reutilizable
+
               // Resto de tu vista aquí
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -211,21 +215,20 @@ class InicioScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        PlayerRow(
-                          name: lastMatch.playerName,
-                          country: lastMatch.playerCountry,
-                          position: lastMatch.playerPosition,
-                          avatarPath: lastMatch.playerAvatar,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        PlayerRow(
-                          name: lastMatch.opponentName,
-                          country: lastMatch.opponentCountry,
-                          position: lastMatch.opponentPosition,
-                          avatarPath: lastMatch.opponentAvatar,
-                        ),
+                        ...playersRow
+                            .map((player) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: PlayerRow(
+                                    name: player.name,
+                                    country: player.country,
+                                    position: player.position,
+                                    avatarPath: player.avatarPath,
+                                    stats: player.stats,
+                                    statColors: player.statColors,
+                                  ),
+                                ))
+                            .toList(),
+
                         const SizedBox(height: 12),
                         // Etiqueta de ganador
                         Center(
@@ -429,51 +432,35 @@ class InicioScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Fila superior con ícono y texto
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.emoji_events_outlined,
-                              color: Colors.blue,
-                              size: 26,
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 12.0),
+                          child: Text(
+                            'Información de Torneo',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Torneos en curso',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          ),
+                        ),
+                        ...matchInfoList.map(
+                          (info) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: MatchInfoCard(
+                              title: info.title,
+                              phase: info.phase,
+                              playersRemaining: info.playersRemaining,
+                              totalPlayers: info.totalPlayers,
+                              nextMatchDate: info.nextMatchDate,
+                              circleText: info.circleText,
                             ),
-                          ],
+                          ),
                         ),
-
-                        const SizedBox(height: 15),
-                        MatchInfoCard(
-                          title: 'Torneo Apertura',
-                          phase: 'Semifinales',
-                          playersRemaining: 4,
-                          totalPlayers: 16,
-                          nextMatchDate: '24 Jun 2025',
-                          circleText:
-                              'Clasificado', // <- Aquí envías el texto que quieres
-                        ),
-                        const SizedBox(height: 15),
-                        MatchInfoCard(
-                          title: 'Torneo Apertura',
-                          phase: 'Semifinales',
-                          playersRemaining: 5,
-                          totalPlayers: 16,
-                          nextMatchDate: '24 Jun 2025',
-                          circleText:
-                              'Semifinal', // <- Aquí envías el texto que quieres
-                        ),
-                        const SizedBox(height: 5),
                       ],
                     ),
                   ),
                 ],
               ),
+
               SizedBox(height: 15),
               Stack(
                 clipBehavior: Clip.none,
@@ -498,50 +485,36 @@ class InicioScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.timer_sharp,
-                              color: Colors.blue,
-                              size: 26,
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 12.0),
+                          child: Text(
+                            'Resumen de Partidos',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Próximos Partidos',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          ),
+                        ),
+                        ...matchSummaryList.map(
+                          (match) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: MatchSummary(
+                              imagePath: match.imagePath,
+                              name: match.name,
+                              position: match.position,
+                              score: match.score,
+                              isInFavor: match.isInFavor,
+                              date: match.date,
+                              time: match.time,
                             ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        MatchSummaryCard(
-                          imagePath: 'assets/images/escudo.png',
-                          name: 'Juan Pérez',
-                          position: 'Posición #1',
-                          score: 3,
-                          isInFavor: true,
-                          date: 'Mañana',
-                          time: '14:30',
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        MatchSummaryCard(
-                          imagePath: 'assets/images/escudo.png',
-                          name: 'ana Pérez',
-                          position: 'Posición #1',
-                          score: 3,
-                          isInFavor: true,
-                          date: 'Mañana',
-                          time: '14:30',
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
+
               SizedBox(height: 15),
               Stack(
                 clipBehavior: Clip.none,
@@ -590,6 +563,80 @@ class InicioScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 12),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          // Acción para TORNEOS
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                              color: Colors.grey), // borde plomo
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(12), // bordes circulares
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                        ),
+                        child: Column(
+                          children: const [
+                            Icon(Icons.emoji_events_outlined,
+                                color: Colors.black),
+                            SizedBox(height: 8),
+                            Text(
+                              'TORNEOS',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) =>  RankingScreen()),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                              color: Colors.grey), // borde plomo
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                        ),
+                        child: Column(
+                          children: const [
+                            Icon(Icons.trending_up_outlined,
+                                color: Colors.black),
+                            SizedBox(height: 8),
+                            Text(
+                              'RANKINGS',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               SizedBox(height: 15),
             ],
           ),

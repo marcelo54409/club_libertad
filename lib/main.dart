@@ -1,6 +1,6 @@
 import 'package:club_libertad_front/features/shared/infrastructure/services/sync_service.dart';
 import 'package:flutter/material.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:hive/hive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,15 +13,12 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:loader_overlay/loader_overlay.dart';
 
-
 Future<void> main() async {
   await Environment.initEnvironment();
   WidgetsFlutterBinding.ensureInitialized();
 
   final appDocumentDir = await path_provider.getApplicationDocumentsDirectory();
   Hive.init(appDocumentDir.path);
-
- 
 
   runApp(const ProviderScope(child: MainApp()));
 }
@@ -49,7 +46,11 @@ class MainApp extends ConsumerWidget {
         );
       },
       child: MaterialApp.router(
-        theme: theme,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorSchemeSeed: Colors.red,
+          textTheme: GoogleFonts.dmSansTextTheme(), // 👈 Aquí defines la fuente
+        ),
         debugShowCheckedModeBanner: false,
         routerConfig: appRouter,
         builder: (context, child) {

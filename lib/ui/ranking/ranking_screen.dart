@@ -1,142 +1,180 @@
+import 'package:club_libertad_front/ui/widgets/indicador.dart';
+import 'package:club_libertad_front/ui/widgets/posicion_card.dart';
+import 'package:club_libertad_front/ui/widgets/ranking_deportista_list.dart';
+import 'package:club_libertad_front/ui/widgets/toggle_form_selector.dart';
+import 'package:club_libertad_front/ui/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:club_libertad_front/ui/widgets/torneo_card_list.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class RankingScreen extends StatelessWidget {
+class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[200], // <- color de fondo "medio plomo"
+  State<RankingScreen> createState() => _RankingScreenState();
+}
 
-      body: Column(
-        children: [
-          // Topbar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.black12, // Línea inferior ligera
-                  width: 1,
+class _RankingScreenState extends State<RankingScreen> {
+  int selectedToggleIndex = 0;
+
+  final List<Deportista> allDeportistas = [
+    Deportista(
+      posicion: 1,
+      nombre: 'Juan Pérez',
+      ciudad: 'Trujillo',
+      imagen: 'assets/images/escudo.png',
+      puntos: 1200,
+      torneosAFavor: 4,
+      victorias: 12,
+      genero: 'masculino',
+    ),
+    Deportista(
+      posicion: 2,
+      nombre: 'Carlos Gómez',
+      ciudad: 'Lima',
+      imagen: 'assets/images/escudo.png',
+      puntos: 1150,
+      torneosAFavor: 3,
+      victorias: 10,
+      genero: 'masculino',
+    ),
+    Deportista(
+      posicion: 3,
+      nombre: 'Luis Torres',
+      ciudad: 'Piura',
+      imagen: 'assets/images/escudo.png',
+      puntos: 1090,
+      torneosAFavor: 2,
+      victorias: 9,
+      genero: 'masculino',
+    ),
+    Deportista(
+      posicion: 4,
+      nombre: 'Ana López',
+      ciudad: 'Lima',
+      imagen: 'assets/images/escudo.png',
+      puntos: 1080,
+      torneosAFavor: 3,
+      victorias: 11,
+      genero: 'femenino',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    List<Deportista> filteredDeportistas;
+
+    switch (selectedToggleIndex) {
+      case 1: // Masculino
+        filteredDeportistas =
+            allDeportistas.where((d) => d.genero == 'masculino').toList();
+        break;
+      case 2: // Femenino
+        filteredDeportistas =
+            allDeportistas.where((d) => d.genero == 'femenino').toList();
+        break;
+      default: // General (todos)
+        filteredDeportistas = allDeportistas;
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.grey[200],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const TopBarClub(),
+
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Rankings',
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Clasificación de jugadores',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12, // Sombra ligera
-                  blurRadius: 4,
-                  offset: Offset(0, 2), // Desplazamiento de la sombra
-                ),
-              ],
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Row(
+              const SizedBox(height: 24),
+              const TorneoCardList(),
+              const SizedBox(height: 15),
+              const TuPosicionCard(
+                puestoActual: 3,
+                puestoAnterior: 5,
+                puntaje: 940,
+              ),
+              const SizedBox(height: 15),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Image.asset(
-                    'assets/images/escudo.png',
-                    width: 40,
-                    height: 40,
+                  IndicadorIconoTexto(
+                    icono: FaIcon(FontAwesomeIcons.trophy),
+                    iconoColor: Colors.amber,
+                    cantidad: '5',
+                    etiqueta: 'Torneos',
                   ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment
-                        .start, // Para que alineen a la izquierda
-                    children: const [
-                      Text(
-                        'Club Libertad',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        'Tenis Trujillo',
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+                  IndicadorIconoTexto(
+                    icono: FaIcon(FontAwesomeIcons.medal),
+                    iconoColor: Colors.green,
+                    cantidad: '12',
+                    etiqueta: 'Victorias',
                   ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.notifications_active_rounded),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.settings),
-                    onPressed: () {},
+                  IndicadorIconoTexto(
+                    icono: FaIcon(FontAwesomeIcons.calendar),
+                    iconoColor: Colors.blue,
+                    cantidad: '28',
+                    etiqueta: 'Win Rate',
                   ),
                 ],
               ),
-            ),
-          ),
-          // Resto de tu vista aquí
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SafeArea(
-              bottom: false,
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Rankings',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Clasificación de jugadores',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
+              const SizedBox(height: 15),
+
+              // Toggle para cambiar vista
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ToggleFormSelector(
+                    options: const ['General', 'Masculino', 'Femenino'],
+                    selectedIndex: selectedToggleIndex,
+                    onChanged: (index) {
+                      setState(() {
+                        selectedToggleIndex = index;
+                      });
+                    },
                   ),
-                ],
               ),
-            ),
+
+              const SizedBox(height: 15),
+
+              // Lista de deportistas filtrada o completa
+              RankingDeportistasList(deportistas: filteredDeportistas),
+            ],
           ),
-          SizedBox(
-            height: 15,
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: const [
-                Icon(
-                  Icons.emoji_events_outlined,
-                  color: Colors.lime,
-                  size: 26,
-                ),
-                SizedBox(width: 8), // Espacio entre ícono y texto
-                Text(
-                  'Puntos por torneo',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

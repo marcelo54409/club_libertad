@@ -1,4 +1,3 @@
-
 import 'package:club_libertad_front/features/auth/domain/datasources/auth_datasource.dart';
 import 'package:club_libertad_front/features/auth/domain/entities/user.dart';
 import 'package:club_libertad_front/features/auth/domain/repositories/auth_repositorie.dart';
@@ -20,4 +19,9 @@ class AuthRepositoryImpl extends AuthRepository {
     return dataSource.login(nombre, password);
   }
 
+  @override
+  Future<User> register(
+      String nombre, String apellido, String correo, String password) {
+    return dataSource.register(nombre, apellido, correo, password);
+  }
 }

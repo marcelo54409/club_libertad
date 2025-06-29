@@ -5,6 +5,8 @@ class PlayerRow extends StatelessWidget {
   final String country;
   final int position;
   final String avatarPath;
+  final List<int> stats;
+  final List<Color> statColors;
 
   const PlayerRow({
     super.key,
@@ -12,7 +14,22 @@ class PlayerRow extends StatelessWidget {
     required this.country,
     required this.position,
     required this.avatarPath,
+    required this.stats,
+    required this.statColors,
   });
+
+  // Función para calcular colores
+  static List<Color> getStatColors(List<int> statsA, List<int> statsB) {
+    return List<Color>.generate(3, (index) {
+      if (statsA[index] > statsB[index]) {
+        return Colors.green;
+      } else if (statsA[index] < statsB[index]) {
+        return Colors.grey;
+      } else {
+        return Colors.amber;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +64,7 @@ class PlayerRow extends StatelessWidget {
           radius: 16,
           backgroundColor: Colors.lime,
           child: Text(
-            position.toString(),
+            "${position.toString()} #",
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -59,11 +76,20 @@ class PlayerRow extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 4),
             child: Container(
-              width: 16,
-              height: 16,
+              width: 24,
+              height: 24,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.lime,
+                color: statColors[i],
                 borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                stats[i].toString(),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

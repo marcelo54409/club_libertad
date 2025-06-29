@@ -36,6 +36,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
       : super(AuthState()) {
     checkAuthStatus();
   }
+Future<void> registerUser(String nombre, String apellido, String correo, String password) async {
+  state = state.copyWith(isLoading: true, errorMessage: '');
+
+  try {
+    final user = await authRepository.register(nombre, apellido, correo, password);
+    await _setLoggedUser(user);
+  } on CustomError catch (e) {
+    state = state.copyWith(isLoading: false, errorMessage: e.message);
+  } catch (e) {
+    state = state.copyWith(isLoading: false, errorMessage: 'Error inesperado al registrar');
+  }
+}
 
   Future<void> loginUser(String nombre, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: '');

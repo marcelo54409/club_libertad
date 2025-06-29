@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
-class MatchSummaryCard extends StatelessWidget {
-  final String imagePath;
+class MatchSummary extends StatelessWidget {
+ final String imagePath;
   final String name;
   final String position;
   final int score;
-  final bool isInFavor; // true: "a favor", false: "en contra"
+  final bool isInFavor;
   final String date;
   final String time;
 
-  const MatchSummaryCard({
-    super.key,
+  MatchSummary({
     required this.imagePath,
     required this.name,
     required this.position,
