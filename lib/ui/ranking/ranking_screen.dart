@@ -84,7 +84,6 @@ class _RankingScreenState extends State<RankingScreen> {
           child: Column(
             children: [
               const TopBarClub(),
-
               const SizedBox(height: 16),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
@@ -153,24 +152,21 @@ class _RankingScreenState extends State<RankingScreen> {
                 ],
               ),
               const SizedBox(height: 15),
-
-              // Toggle para cambiar vista
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ToggleFormSelector(
-                    options: const ['General', 'Masculino', 'Femenino'],
-                    selectedIndex: selectedToggleIndex,
-                    onChanged: (index) {
-                      setState(() {
-                        selectedToggleIndex = index;
-                      });
-                    },
-                  ),
+                child: ToggleFormSelector(
+                  options: const ['General', 'Masculino', 'Femenino'],
+                  selectedIndex: selectedToggleIndex,
+                  onChanged: (index) {
+                    setState(() {
+                      selectedToggleIndex = index;
+                    });
+                  },
+                  selectedColor: Colors.white,
+                  selectedTextColor: Colors.black,
+                ),
               ),
-
               const SizedBox(height: 15),
-
-              // Lista de deportistas filtrada o completa
               RankingDeportistasList(deportistas: filteredDeportistas),
             ],
           ),

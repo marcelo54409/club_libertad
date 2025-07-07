@@ -24,7 +24,11 @@ class TorneoCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: colorSuave,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: colorFuerte,
+          width: 0.9,
+        ),
       ),
       child: Row(
         children: [
@@ -66,10 +70,11 @@ class TorneoCard extends StatelessWidget {
             ),
           ),
           Text(
-            '+$puntos pts',
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
+            '${puntos.toString()} pts',
+            style: TextStyle(
               fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: colorFuerte,
             ),
           ),
         ],

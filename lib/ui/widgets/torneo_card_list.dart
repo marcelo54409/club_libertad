@@ -15,7 +15,6 @@ class UniqueColorGenerator {
     Colors.red,
   ];
 
-  // Asigna un color único según el texto hash (como un id o título)
   static Color getColorForKey(String key) {
     final hash = key.hashCode;
     final index = hash.abs() % _baseColors.length;
@@ -25,7 +24,6 @@ class UniqueColorGenerator {
 
 class TorneoCardList extends StatelessWidget {
   const TorneoCardList({super.key});
-
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> torneos = [
@@ -35,19 +33,14 @@ class TorneoCardList extends StatelessWidget {
       {'titulo': 'Torneo Junior', 'subtitulo': 'Juvenil', 'puntos': 100},
     ];
 
+    torneos.sort((a, b) => (b['puntos'] as int).compareTo(a['puntos'] as int));
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

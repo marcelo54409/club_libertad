@@ -10,16 +10,15 @@ class Deportista {
   final int torneosAFavor;
   final int victorias;
   final String genero;
-  Deportista({
-    required this.posicion,
-    required this.nombre,
-    required this.ciudad,
-    required this.imagen,
-    required this.puntos,
-    required this.torneosAFavor,
-    required this.victorias,
-    required this.genero
-  });
+  Deportista(
+      {required this.posicion,
+      required this.nombre,
+      required this.ciudad,
+      required this.imagen,
+      required this.puntos,
+      required this.torneosAFavor,
+      required this.victorias,
+      required this.genero});
 }
 
 class RankingDeportistasList extends StatelessWidget {
@@ -64,17 +63,9 @@ class _DeportistaItem extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.black12),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          )
-        ],
       ),
       child: Row(
         children: [
-          // Posición e ícono
           Column(
             children: [
               Text(
@@ -93,13 +84,12 @@ class _DeportistaItem extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 12),
-          // Imagen circular
           CircleAvatar(
             radius: 24,
             backgroundImage: AssetImage(deportista.imagen),
+            backgroundColor: Colors.white,
           ),
           const SizedBox(width: 12),
-          // Datos jugador: nombre, ciudad con icono
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +119,6 @@ class _DeportistaItem extends StatelessWidget {
               ],
             ),
           ),
-          // Puntos y torneos/victorias
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [

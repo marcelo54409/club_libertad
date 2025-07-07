@@ -50,7 +50,6 @@ class MatchInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Fila superior con título y número
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -64,7 +63,6 @@ class MatchInfoCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Reemplaza el CircleAvatar por:
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -72,10 +70,10 @@ class MatchInfoCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.red,
-                  borderRadius: BorderRadius.circular(999), // Píldora
+                  borderRadius: BorderRadius.circular(999), 
                 ),
                 child: Text(
-                  circleText, // <- tu texto dinámico
+                  circleText, 
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

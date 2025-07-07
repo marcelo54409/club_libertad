@@ -216,7 +216,7 @@ class LoginForm extends ConsumerWidget {
                   context.go('/inicio');
                 },
           style: FilledButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 167, 12, 1),
+            backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 14),
             textStyle: textStyles.titleMedium,

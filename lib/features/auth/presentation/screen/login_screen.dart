@@ -190,13 +190,13 @@ class _LoginViewState extends ConsumerState<_LoginView>
               children: [
                 Image.asset(
                   'assets/images/escudo.png',
-                  width: size.width * 0.50,
+                  width: size.width * 0.30,
                 ),
                 const SizedBox(height: 12),
                 const Text(
                   'Club Libertad',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 30,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -234,6 +234,8 @@ class _LoginViewState extends ConsumerState<_LoginView>
                   onChanged: (index) {
                     ref.read(isLoginFormProvider.notifier).state = index == 0;
                   },
+                  selectedColor: Colors.red,
+                  selectedTextColor: Colors.white,
                 ),
                 const SizedBox(height: 16),
               ],

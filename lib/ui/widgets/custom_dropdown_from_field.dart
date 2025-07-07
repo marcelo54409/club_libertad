@@ -27,7 +27,7 @@ class CustomDropdownField<T> extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20), // 👈 Borde circular
+            borderRadius: BorderRadius.circular(20),
           ),
           contentPadding: const EdgeInsets.symmetric(
             vertical: 12,

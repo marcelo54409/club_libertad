@@ -2,6 +2,7 @@ import 'package:club_libertad_front/config/router/app_router_notifier.dart';
 import 'package:club_libertad_front/features/auth/presentation/providers/auth_provider.dart';
 import 'package:club_libertad_front/features/auth/presentation/screen/check_auth_status.dart';
 import 'package:club_libertad_front/features/auth/presentation/screen/login_screen.dart';
+import 'package:club_libertad_front/features/auth/presentation/screen/splash_screen.dart';
 import 'package:club_libertad_front/ui/inicio/inicio_screen.dart';
 import 'package:club_libertad_front/ui/ranking/ranking_screen.dart';
 import 'package:club_libertad_front/ui/torneos/torneos_screen.dart';
@@ -13,9 +14,14 @@ import 'package:go_router/go_router.dart';
 final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterProviderS);
   return GoRouter(
-    initialLocation: '/inicio',
+    initialLocation: '/splashScreen',
     refreshListenable: goRouterNotifier,
     routes: [
+      GoRoute(
+        path: '/splashScreen',
+        pageBuilder: (context, state) =>
+            const MaterialPage(child: SplashScreen()),
+      ),
       GoRoute(
         path: '/splash',
         pageBuilder: (context, state) =>

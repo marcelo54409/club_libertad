@@ -48,8 +48,13 @@ class MainApp extends ConsumerWidget {
       child: MaterialApp.router(
         theme: ThemeData(
           useMaterial3: true,
-          colorSchemeSeed: Colors.red,
-          textTheme: GoogleFonts.dmSansTextTheme(), // 👈 Aquí defines la fuente
+          colorSchemeSeed: Colors.white,
+          textTheme: GoogleFonts.interTextTheme().copyWith(
+            bodyLarge:
+                GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500),
+            titleLarge:
+                GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
         ),
         debugShowCheckedModeBanner: false,
         routerConfig: appRouter,

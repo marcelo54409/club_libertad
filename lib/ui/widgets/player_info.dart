@@ -38,6 +38,7 @@ class PlayerRow extends StatelessWidget {
         CircleAvatar(
           radius: 24,
           backgroundImage: AssetImage(avatarPath),
+          backgroundColor: Colors.white,
         ),
         const SizedBox(width: 8),
         Column(
@@ -60,14 +61,20 @@ class PlayerRow extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        CircleAvatar(
-          radius: 16,
-          backgroundColor: Colors.lime,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: position == 1
+                ? Colors.red
+                : Colors.blue, // rojo si es 1, azul si no
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Text(
-            "${position.toString()} #",
+            '#$position',
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 12,
             ),
           ),
         ),

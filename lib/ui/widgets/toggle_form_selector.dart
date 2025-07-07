@@ -4,55 +4,58 @@ class ToggleFormSelector extends StatelessWidget {
   final List<String> options;
   final int selectedIndex;
   final ValueChanged<int> onChanged;
+  final Color selectedColor;
+  final Color selectedTextColor;
 
   const ToggleFormSelector({
     super.key,
     required this.options,
     required this.selectedIndex,
     required this.onChanged,
+    this.selectedColor = Colors.white,
+    this.selectedTextColor = Colors.black87,
   });
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = Colors.grey[400]!; // Fondo plomo general
-    final Color selectedFillColor = Colors.white; // Fondo blanco al seleccionar
-    final Color selectedTextColor =
-        Colors.black87; // Texto negro en seleccionado
-    final Color unselectedTextColor =
-        Colors.black54; // Texto gris en no seleccionado
-    final Color borderColor = Colors.grey[400]!; // Borde igual que el fondo
+    final Color backgroundColor = Colors.grey[300]!;
+    final Color unselectedTextColor = Colors.black54;
+    final Color borderColor = Colors.grey[400]!;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ToggleButtons(
-        isSelected: List.generate(
-          options.length,
-          (index) => index == selectedIndex,
-        ),
-        onPressed: onChanged,
-        borderRadius: BorderRadius.circular(10),
-        borderColor: borderColor,
-        selectedBorderColor: Colors.grey[300],
-        fillColor: selectedFillColor,
-        selectedColor: selectedTextColor,
-        color: unselectedTextColor,
-        constraints: BoxConstraints(
-          minHeight: 44,
-          minWidth: (MediaQuery.of(context).size.width - 40) / options.length,
-          // Resta 32 por el padding horizontal usual, ajusta si no tienes padding
-        ),
-        children: options
-            .map(
-              (label) => Text(
-                label,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            )
-            .toList(),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double itemWidth = (constraints.maxWidth - 10) / options.length;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: ToggleButtons(
+            isSelected:
+                List.generate(options.length, (i) => i == selectedIndex),
+            onPressed: onChanged,
+            borderRadius: BorderRadius.circular(6),
+            borderColor: borderColor,
+            selectedBorderColor: borderColor,
+            fillColor: selectedColor,
+            selectedColor: selectedTextColor,
+            color: unselectedTextColor,
+            constraints: BoxConstraints(
+              minHeight: 40,
+              minWidth: itemWidth,
+            ),
+            children: options
+                .map(
+                  (label) => Text(
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                )
+                .toList(),
+          ),
+        );
+      },
     );
   }
 }

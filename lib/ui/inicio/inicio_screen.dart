@@ -12,16 +12,6 @@ class InicioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lastMatch = MatchInfo(
-      playerName: 'Juan Pérez',
-      playerCountry: 'Perú',
-      playerPosition: 1,
-      playerAvatar: 'assets/images/escudo.png',
-      opponentName: 'Carlos Gómez',
-      opponentCountry: 'Argentina',
-      opponentPosition: 2,
-      opponentAvatar: 'assets/images/escudo.png',
-    );
     final players = [
       PlayerStats(
         imagePath: 'assets/images/escudo.png',
@@ -102,9 +92,8 @@ class InicioScreen extends StatelessWidget {
           child: Column(
             children: [
               // Topbar
-              TopBarClub(), // 👈 Reutilizable
+              TopBarClub(), 
 
-              // Resto de tu vista aquí
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SafeArea(
@@ -138,7 +127,6 @@ class InicioScreen extends StatelessWidget {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Borde lateral que sobresale
                   Positioned(
                     left: 16,
                     top: 4,
@@ -151,7 +139,6 @@ class InicioScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Tu contenedor principal
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 18),
                     padding: const EdgeInsets.symmetric(
@@ -161,18 +148,10 @@ class InicioScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Fila superior con ícono y texto
                         Row(
                           children: const [
                             Icon(
@@ -191,7 +170,6 @@ class InicioScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        // Título de copa
                         const Align(
                           alignment: Alignment.center,
                           child: Text(
@@ -203,7 +181,6 @@ class InicioScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        // Subtítulo centrado
                         const Align(
                           alignment: Alignment.center,
                           child: Text(
@@ -230,7 +207,6 @@ class InicioScreen extends StatelessWidget {
                             .toList(),
 
                         const SizedBox(height: 12),
-                        // Etiqueta de ganador
                         Center(
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -351,7 +327,7 @@ class InicioScreen extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons
-                                      .calendar_month_outlined, // icono para Aces
+                                      .calendar_month_outlined, 
                                   size: 20,
                                 ),
                                 SizedBox(width: 4),
@@ -368,7 +344,7 @@ class InicioScreen extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  Icons.pin_drop_outlined, // icono para Winners
+                                  Icons.pin_drop_outlined, 
                                   size: 14,
                                 ),
                                 SizedBox(width: 4),
@@ -386,7 +362,7 @@ class InicioScreen extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons
-                                      .timer_sharp, // icono para Rally más largo
+                                      .timer_sharp, 
                                   size: 14,
                                 ),
                                 SizedBox(width: 4),
@@ -421,13 +397,6 @@ class InicioScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,13 +443,6 @@ class InicioScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -528,13 +490,6 @@ class InicioScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,14 +527,13 @@ class InicioScreen extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          // Acción para TORNEOS
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
-                              color: Colors.grey), // borde plomo
+                              color: Colors.grey), 
                           shape: RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.circular(12), // bordes circulares
+                                BorderRadius.circular(12), 
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 20),
                         ),
@@ -605,13 +559,12 @@ class InicioScreen extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (_) =>  RankingScreen()),
+                            MaterialPageRoute(builder: (_) => RankingScreen()),
                           );
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
-                              color: Colors.grey), // borde plomo
+                              color: Colors.grey), 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

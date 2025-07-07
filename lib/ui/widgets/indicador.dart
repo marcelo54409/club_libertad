@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class IndicadorIconoTexto extends StatelessWidget {
-  final Widget icono; // Cambiado a Widget para aceptar Icon o FaIcon
+  final Widget icono;
   final Color iconoColor;
   final String cantidad;
   final String etiqueta;
@@ -17,20 +17,13 @@ class IndicadorIconoTexto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100, // puedes ajustar este valor según necesidad
+      width: 100, 
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.black12),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -38,15 +31,15 @@ class IndicadorIconoTexto extends StatelessWidget {
           IconTheme(
             data: IconThemeData(
               color: iconoColor,
-              size: 30,
+              size: 25,
             ),
             child: icono,
           ),
           const SizedBox(height: 8),
           Text(
-            cantidad,
+            "$cantidad %",
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
             ),
           ),

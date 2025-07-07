@@ -48,17 +48,9 @@ class TuPosicionCard extends StatelessWidget {
             Color(0xFF243875), // Azul oscuro
           ],
         ),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 4),
-          ),
-        ],
       ),
       child: Row(
         children: [
-          // Columna izquierda
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,7 +84,6 @@ class TuPosicionCard extends StatelessWidget {
             ),
           ),
 
-          // Columna derecha (indicador de cambio)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [

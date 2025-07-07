@@ -58,7 +58,7 @@ class _TorneosScreenState extends State<TorneosScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: Colors.white, // Fondo blanco
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -224,14 +224,14 @@ class _TorneosScreenState extends State<TorneosScreen> {
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
-                        filled: true, // 👈 Activa el fondo
-                        fillColor: Colors.white, // 👈 Fondo blanco
+                        filled: true,
+                        fillColor: Colors.white, 
                         hintText: 'Buscar torneo...',
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide:
-                              BorderSide.none, // 👈 Sin borde fuerte (opcional)
+                              BorderSide.none, 
                         ),
                         contentPadding: const EdgeInsets.symmetric(vertical: 0),
                       ),
@@ -242,7 +242,7 @@ class _TorneosScreenState extends State<TorneosScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius:
-                          BorderRadius.circular(8), // Bordes redondeados
+                          BorderRadius.circular(8), 
                       border: Border.all(color: Colors.black12),
                       boxShadow: const [
                         BoxShadow(
@@ -275,6 +275,8 @@ class _TorneosScreenState extends State<TorneosScreen> {
                         selectedEstadoIndex = index;
                       });
                     },
+                    selectedColor: Colors.white,
+                    selectedTextColor: Colors.black,
                   ),
                   const SizedBox(height: 16),
                   ...torneos
@@ -284,7 +286,7 @@ class _TorneosScreenState extends State<TorneosScreen> {
                       .map(
                         (t) => Padding(
                           padding: const EdgeInsets.only(bottom: 16),
-                          child: TorneoCard(data: t),
+                          child: TorneoCard(t),
                         ),
                       )
                       .toList(),
