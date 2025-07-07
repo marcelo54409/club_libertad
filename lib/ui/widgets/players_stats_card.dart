@@ -1,5 +1,6 @@
 import 'package:club_libertad_front/ui/widgets/resumen_box.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PlayerStats {
   final String imagePath;
@@ -9,7 +10,7 @@ class PlayerStats {
   final String streak;
   final int wins;
   final int gamesPlayed;
-
+  final int ranking;
   PlayerStats({
     required this.imagePath,
     required this.name,
@@ -17,6 +18,7 @@ class PlayerStats {
     required this.city,
     required this.streak,
     required this.wins,
+    required this.ranking,
     required this.gamesPlayed,
   });
 
@@ -67,9 +69,9 @@ class PlayerStatsList extends StatelessWidget {
             onTap: () {
               showDialog(
                 context: context,
-                builder: (_) {
+                builder: (dialogContext) {
                   final percentage = player.percentage.toStringAsFixed(1);
-                  final color = _getPercentageColor(player.percentage);
+                  final BuildContext parentContext = context;
 
                   return Dialog(
                     backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
@@ -82,11 +84,14 @@ class PlayerStatsList extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text(
-                              'Perfil del jugador',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Perfil del jugador',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -109,41 +114,56 @@ class PlayerStatsList extends StatelessWidget {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              player.city,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                ResumenBox(
-                                  icon: Icons.emoji_events,
-                                  label: 'Partidos',
-                                  value: player.wins.toString(),
+                                Text(
+                                  '#${player.ranking}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(width: 8),
-                                ResumenBox(
-                                  icon: Icons.sports_tennis,
-                                  label: 'Victorias',
-                                  value: player.gamesPlayed.toString(),
-                                ),
-                                const SizedBox(width: 8),
-                                ResumenBox(
-                                  icon: Icons.percent,
-                                  label: 'Win Rate',
-                                  value: '$percentage%',
+                                Text(
+                                  player.city,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
-
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                _buildCustomStatBox(
+                                  label: 'Partidos',
+                                  value: player.gamesPlayed.toString(),
+                                  backgroundColor: const Color(0xFFD0E8FF),
+                                  textColor: const Color(0xFF1D4ED8),
+                                ),
+                                const SizedBox(width: 8),
+                                _buildCustomStatBox(
+                                  label: 'Victorias',
+                                  value: player.wins.toString(),
+                                  backgroundColor: const Color(0xFFD1FAE5),
+                                  textColor: const Color(0xFF047857),
+                                ),
+                                const SizedBox(width: 8),
+                                _buildCustomStatBox(
+                                  label: 'Win Rate',
+                                  value: '${percentage.toString()}%',
+                                  backgroundColor: const Color(0xFFEDE9FE),
+                                  textColor: const Color(0xFF6D28D9),
+                                ),
+                              ],
+                            ),
                             const SizedBox(height: 16),
                             Text(
-                              player.streak,
+                              'Estado: ${player.streak}',
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -158,13 +178,18 @@ class PlayerStatsList extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 24),
-
                             Row(
                               children: [
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
+                                    onPressed: () {
+                                      Navigator.of(dialogContext).pop();
+
+                                      // 2. Luego navega con go_router usando el contexto exterior
+                                      Future.microtask(() {
+                                        parentContext.go('/perfil');
+                                      });
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.black,
                                       shape: RoundedRectangleBorder(
@@ -281,6 +306,43 @@ class PlayerStatsList extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildCustomStatBox({
+    required String label,
+    required String value,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withOpacity(0.8),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

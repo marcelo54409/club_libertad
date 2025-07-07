@@ -1,11 +1,11 @@
-import 'package:club_libertad_front/ui/ranking/ranking_screen.dart';
-import 'package:club_libertad_front/ui/widgets/march_info.dart';
+
 import 'package:club_libertad_front/ui/widgets/march_summary.dart';
 import 'package:club_libertad_front/ui/widgets/match_info_card.dart';
 import 'package:club_libertad_front/ui/widgets/player_info.dart';
 import 'package:club_libertad_front/ui/widgets/players_stats_card.dart';
 import 'package:club_libertad_front/ui/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class InicioScreen extends StatelessWidget {
   const InicioScreen({super.key});
@@ -14,6 +14,7 @@ class InicioScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final players = [
       PlayerStats(
+        ranking: 14,
         imagePath: 'assets/images/escudo.png',
         name: 'Juan Pérez',
         position: 'Delantero',
@@ -92,7 +93,7 @@ class InicioScreen extends StatelessWidget {
           child: Column(
             children: [
               // Topbar
-              TopBarClub(), 
+              TopBarClub(),
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -205,7 +206,6 @@ class InicioScreen extends StatelessWidget {
                                   ),
                                 ))
                             .toList(),
-
                         const SizedBox(height: 12),
                         Center(
                           child: Container(
@@ -312,7 +312,6 @@ class InicioScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-
                         const Divider(
                           color: Colors.black12,
                           thickness: 1,
@@ -326,8 +325,7 @@ class InicioScreen extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  Icons
-                                      .calendar_month_outlined, 
+                                  Icons.calendar_month_outlined,
                                   size: 20,
                                 ),
                                 SizedBox(width: 4),
@@ -344,7 +342,7 @@ class InicioScreen extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  Icons.pin_drop_outlined, 
+                                  Icons.pin_drop_outlined,
                                   size: 14,
                                 ),
                                 SizedBox(width: 4),
@@ -361,8 +359,7 @@ class InicioScreen extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  Icons
-                                      .timer_sharp, 
+                                  Icons.timer_sharp,
                                   size: 14,
                                 ),
                                 SizedBox(width: 4),
@@ -527,13 +524,12 @@ class InicioScreen extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
+                          context.go('/torneos');
                         },
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: Colors.grey), 
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(12), 
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 20),
                         ),
@@ -557,14 +553,10 @@ class InicioScreen extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => RankingScreen()),
-                          );
+                          context.go('/ranking');
                         },
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: Colors.grey), 
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

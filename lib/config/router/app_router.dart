@@ -1,9 +1,9 @@
 import 'package:club_libertad_front/config/router/app_router_notifier.dart';
-import 'package:club_libertad_front/features/auth/presentation/providers/auth_provider.dart';
 import 'package:club_libertad_front/features/auth/presentation/screen/check_auth_status.dart';
 import 'package:club_libertad_front/features/auth/presentation/screen/login_screen.dart';
 import 'package:club_libertad_front/features/auth/presentation/screen/splash_screen.dart';
 import 'package:club_libertad_front/ui/inicio/inicio_screen.dart';
+import 'package:club_libertad_front/ui/perfil/perfil_screen.dart';
 import 'package:club_libertad_front/ui/ranking/ranking_screen.dart';
 import 'package:club_libertad_front/ui/torneos/torneos_screen.dart';
 import 'package:club_libertad_front/ui/widgets/bottom_navigator.dart';
@@ -56,10 +56,11 @@ final goRouterProvider = Provider((ref) {
             path: '/partidos',
             builder: (context, state) => const PartidosScreen(),
           ),
+          */
           GoRoute(
             path: '/perfil',
             builder: (context, state) => const PerfilScreen(),
-          ),*/
+          ),
         ],
       ),
     ],
