@@ -4,11 +4,11 @@ enum MatchStatus { programado, enVivo, finalizado }
 
 class MatchCard extends StatelessWidget {
   final String fase;
-  final MatchStatus status; 
+  final MatchStatus status;
   final String jugadorA;
   final String jugadorB;
-  final String marcador; 
-  final String ganador; 
+  final String marcador;
+  final String ganador;
 
   const MatchCard({
     super.key,
@@ -85,15 +85,15 @@ class MatchCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _statusColor.withOpacity(0.08), 
+        color: _statusColor.withOpacity(0.2),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: _statusColor, 
+          color: _statusColor,
           width: 2,
         ),
         boxShadow: const [
           BoxShadow(
-            color: Colors.black12,
+            color: Color.fromARGB(31, 91, 90, 90),
             blurRadius: 4,
             offset: Offset(0, 2),
           )

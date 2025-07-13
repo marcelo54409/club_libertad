@@ -60,7 +60,7 @@ class InicioScreen extends StatelessWidget {
         totalPlayers: 16,
         nextMatchDate: '03/07/2025',
         circleText: 'Final',
-      ),
+      ),  
     ];
     final statsA = [5, 12, 28];
     final statsB = [3, 15, 22];

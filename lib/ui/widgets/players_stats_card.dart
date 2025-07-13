@@ -78,7 +78,7 @@ class PlayerStatsList extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Padding(
+                    child: Padding( 
                       padding: const EdgeInsets.all(20),
                       child: SingleChildScrollView(
                         child: Column(
