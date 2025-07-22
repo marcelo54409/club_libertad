@@ -1,4 +1,5 @@
-// 1 StateNotifier
+// login_form_provider.dart
+
 import 'package:club_libertad_front/features/auth/presentation/providers/auth_provider.dart';
 import 'package:club_libertad_front/features/shared/infrastructure/inputs/password.dart';
 import 'package:club_libertad_front/features/shared/infrastructure/inputs/user.dart';
@@ -6,37 +7,33 @@ import 'package:club_libertad_front/features/shared/infrastructure/services/key_
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-
-final loginFormProvider =
-    StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
+final loginFormProvider = StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
   final keyValueStorageService = ref.watch(keyValueStorageServiceProvider);
-  final loginUserCallBack = ref.watch(authProvider.notifier).loginUser;
+  final loginUserCallBack = ref.read(authProvider.notifier).loginUser;
+
   return LoginFormNotifier(
     loginUserCallBack: loginUserCallBack,
-    keyValueStorageService: keyValueStorageService, // Inyectamos el servicio
+    keyValueStorageService: keyValueStorageService,
   );
 });
 
 final obscuretextProvider = StateProvider<bool>((ref) => true);
 
-
 class LoginFormNotifier extends StateNotifier<LoginFormState> {
-  final Function(String, String) loginUserCallBack;
+  final Future<void> Function(String, String) loginUserCallBack;
   final KeyValueStorageService keyValueStorageService;
 
   LoginFormNotifier({
     required this.loginUserCallBack,
-    required this.keyValueStorageService, // Recibe el servicio
+    required this.keyValueStorageService,
   }) : super(LoginFormState()) {
-    _loadInitialEmail(); // Llama al método para cargar el email al iniciar
+    _loadInitialEmail();
   }
 
   Future<void> _loadInitialEmail() async {
-    final lastUsername =
-        await keyValueStorageService.getValue<String>('last_logged_email');
+    final lastUsername = await keyValueStorageService.getValue<String>('last_logged_email');
     if (lastUsername != null && lastUsername.isNotEmpty) {
-      final username =
-          Username.dirty(lastUsername); // Crea el objeto Email con el valor cargado
+      final username = Username.dirty(lastUsername);
       state = state.copyWith(
         username: username,
         isValid: Formz.validate([username, state.password]),
@@ -47,7 +44,9 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
   void userChanged(String value) {
     final newUser = Username.dirty(value);
     state = state.copyWith(
-        username: newUser, isValid: Formz.validate([newUser, state.password]));
+      username: newUser,
+      isValid: Formz.validate([newUser, state.password]),
+    );
   }
 
   void passwordChanged(String value) {
@@ -58,13 +57,18 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     );
   }
 
-  onFormSubmitted() async {
+  Future<void> onFormSubmitted() async {
     _touchEveryField();
     if (!state.isValid) return;
+
+    state = state.copyWith(isPosting: true);
+
     await loginUserCallBack(state.username.value, state.password.value);
+
+    state = state.copyWith(isPosting: false);
   }
 
-  _touchEveryField() {
+  void _touchEveryField() {
     final user = Username.dirty(state.username.value);
     final password = Password.dirty(state.password.value);
 

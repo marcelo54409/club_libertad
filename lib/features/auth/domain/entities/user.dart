@@ -1,5 +1,5 @@
 class User {
-  late final String nombre;
+  late final String username;
   final int id;
   final String email;
   final String token;
@@ -7,7 +7,7 @@ class User {
   final List<Office> offices;
 
   User({
-    this.nombre = "",
+    this.username = "",
     required this.id,
     required this.email,
     required this.token,
@@ -17,7 +17,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      nombre: json['user']['employee']['fullname'] ?? '',
+      username: json['user']['employee']['fullname'] ?? '',
       id: json['user']['id'],
       email: json['user']['email'],
       token: json['token'],
@@ -29,7 +29,7 @@ class User {
 
   Map<String, dynamic> toJson() {
     return {
-      'nombre': nombre,
+      'username': username,
       'id': id,
       'email': email,
       'token': token,
@@ -40,7 +40,7 @@ class User {
 
   @override
   String toString() {
-    return 'User{nombre: $nombre, id: $id, email: $email, token: $token, selectOffice: $selectOffice, offices: $offices}';
+    return 'User{username: $username, id: $id, email: $email, token: $token, selectOffice: $selectOffice, offices: $offices}';
   }
 }
 

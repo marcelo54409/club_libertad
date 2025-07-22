@@ -24,10 +24,10 @@ class RegisterForm extends ConsumerWidget {
             Expanded(
               child: CustomTextFormField(
                 label: 'Nombre',
-                initialValue: formState.nombre.value,
-                onChanged: formNotifier.nombreChanged,
+                initialValue: formState.username.value,
+                onChanged: formNotifier.usernameChanged,
                 errorMessage: formState.isFormPosted
-                    ? formState.nombre.errorMessage
+                    ? formState.username.errorMessage
                     : null,
                 prefixIcon: const Icon(Icons.person_outline),
               ),

@@ -28,10 +28,10 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
     required this.keyValueStorageService,
   }) : super(RegisterFormState());
 
-  void nombreChanged(String value) {
-    final nombre = Username.dirty(value); // puedes usar tu propia clase
+  void usernameChanged(String value) {
+    final username = Username.dirty(value); // puedes usar tu propia clase
     state =
-        state.copyWith(nombre: nombre, isValid: _validateAll(nombre: nombre));
+        state.copyWith(username: username, isValid: _validateAll(username: username));
   }
 
   void apellidoChanged(String value) {
@@ -60,29 +60,29 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
   }
 
   void _touchFields() {
-    final nombre = Username.dirty(state.nombre.value);
+    final username = Username.dirty(state.username.value);
     final apellido = Username.dirty(state.apellido.value);
     final correo = Username.dirty(state.correo.value);
     final password = Password.dirty(state.password.value);
 
     state = state.copyWith(
       isFormPosted: true,
-      nombre: nombre,
+      username: username,
       apellido: apellido,
       correo: correo,
       password: password,
-      isValid: Formz.validate([nombre, apellido, correo, password]),
+      isValid: Formz.validate([username, apellido, correo, password]),
     );
   }
 
   bool _validateAll({
-    Username? nombre,
+    Username? username,
     Username? apellido,
     Username? correo,
     Password? password,
   }) {
     return Formz.validate([
-      nombre ?? state.nombre,
+      username ?? state.username,
       apellido ?? state.apellido,
       correo ?? state.correo,
       password ?? state.password,
@@ -91,7 +91,7 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
 }
 
 class RegisterFormState {
-  final Username nombre;
+  final Username username;
   final Username apellido;
   final Username correo;
   final Password password;
@@ -100,7 +100,7 @@ class RegisterFormState {
   final bool isValid;
 
   RegisterFormState({
-    this.nombre = const Username.pure(),
+    this.username = const Username.pure(),
     this.apellido = const Username.pure(),
     this.correo = const Username.pure(),
     this.password = const Password.pure(),
@@ -110,7 +110,7 @@ class RegisterFormState {
   });
 
   RegisterFormState copyWith({
-    Username? nombre,
+    Username? username,
     Username? apellido,
     Username? correo,
     Password? password,
@@ -119,7 +119,7 @@ class RegisterFormState {
     bool? isValid,
   }) {
     return RegisterFormState(
-      nombre: nombre ?? this.nombre,
+      username: username ?? this.username,
       apellido: apellido ?? this.apellido,
       correo: correo ?? this.correo,
       password: password ?? this.password,

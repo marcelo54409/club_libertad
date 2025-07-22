@@ -10,16 +10,13 @@ import 'package:club_libertad_front/features/shared/infrastructure/services/key_
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-
-
 final keyValueStorageServiceProvider = Provider<KeyValueStorageService>((ref) {
   return KeyValueStorageServiceImpl();
 });
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authRepository = AuthRepositoryImpl();
-  final keyValueStorageService =
-      ref.watch(keyValueStorageServiceProvider); 
+  final keyValueStorageService = ref.watch(keyValueStorageServiceProvider);
 
   return AuthNotifier(
     authRepository: authRepository,
@@ -36,56 +33,70 @@ class AuthNotifier extends StateNotifier<AuthState> {
       : super(AuthState()) {
     checkAuthStatus();
   }
-Future<void> registerUser(String nombre, String apellido, String correo, String password) async {
-  state = state.copyWith(isLoading: true, errorMessage: '');
-
-  try {
-    final user = await authRepository.register(nombre, apellido, correo, password);
-    await _setLoggedUser(user);
-  } on CustomError catch (e) {
-    state = state.copyWith(isLoading: false, errorMessage: e.message);
-  } catch (e) {
-    state = state.copyWith(isLoading: false, errorMessage: 'Error inesperado al registrar');
-  }
-}
-
-  Future<void> loginUser(String nombre, String password) async {
+  Future<void> registerUser(String username, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: '');
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
 
-      state = state.copyWith(
-          isLoading: false,
-          errorMessage: 'Revisar conexión a internet',
-          authStatus: AuthStatus.notAuthenticated 
-          );
-      return;
-    }
     try {
-      final user = await authRepository.login(nombre, password);
-      await _setLoggedUser(
-          user); 
+      final user = await authRepository.register(username, password);
+      await _setLoggedUser(user);
     } on CustomError catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
-    } on SocketException {
-      state = state.copyWith(
-          isLoading: false, errorMessage: 'Revisar conexión a internet');
     } catch (e) {
-      // print("Error desconocido en login: $e"); // Loguear el error real
       state = state.copyWith(
-          isLoading: false, errorMessage: 'Error inesperado durante el login');
+          isLoading: false, errorMessage: 'Error inesperado al registrar');
+    }
+  }
+
+  Future<void> loginUser(String username, String password) async {
+    state = state.copyWith(isLoading: true, errorMessage: '');
+    final connectivityResult = await (Connectivity().checkConnectivity());
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print('[Login Error] No internet connection');
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Revisar conexión a internet',
+        authStatus: AuthStatus.notAuthenticated,
+      );
+      return;
+    }
+
+    try {
+      final user = await authRepository.login(username, password);
+      print('[Login Success] Usuario autenticado: ${user.username}');
+      await _setLoggedUser(user);
+    } on CustomError catch (e) {
+      print('[Login CustomError] ${e.message}');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.message,
+      );
+    } on SocketException {
+      print('[Login SocketException] Problema de red');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Revisar conexión a internet',
+      );
+    } catch (e, stackTrace) {
+      print('[Login Unknown Error] $e');
+      print('[StackTrace] $stackTrace');
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Error inesperado durante el login',
+      );
     }
   }
 
   Future<void> _setLoggedUser(User user) async {
     await keyValueStorageService.setKeyValue('token', user.token);
-    final userJson = UserMapper.userEntityToJson(
-        user); 
+    final userJson = UserMapper.userEntityToJson(user);
     await keyValueStorageService.setKeyValue(
         'user_session_data', jsonEncode(userJson));
 
     state = state.copyWith(
-        errorMessage: '', 
+        errorMessage: '',
         authStatus: AuthStatus.authenticated,
         isLoading: false,
         user: user);
@@ -93,8 +104,7 @@ Future<void> registerUser(String nombre, String apellido, String correo, String 
 
   Future<void> logoutUser({String? errorMessage}) async {
     await keyValueStorageService.removeKey('token');
-    await keyValueStorageService
-        .removeKey('user_session_data'); 
+    await keyValueStorageService.removeKey('user_session_data');
 
     state = state.copyWith(
         errorMessage: errorMessage,
@@ -104,14 +114,13 @@ Future<void> registerUser(String nombre, String apellido, String correo, String 
   }
 
   void checkAuthStatus() async {
-    state = state.copyWith(
-        authStatus: AuthStatus.cheking,
-        isLoading: true); 
+    state = state.copyWith(authStatus: AuthStatus.cheking, isLoading: true);
 
     final token = await keyValueStorageService.getValue<String>('token');
 
     if (token == null || token.isEmpty) {
-      return logoutUser();}
+      return logoutUser();
+    }
 
     try {
       final userSessionData =
@@ -120,20 +129,17 @@ Future<void> registerUser(String nombre, String apellido, String correo, String 
         final userMap = jsonDecode(userSessionData);
         final user = UserMapper.userJsonToEntity(userMap); // Usa tu mapper
 
-    
         state = state.copyWith(
             authStatus: AuthStatus.authenticated,
             user: user,
             isLoading: false,
             errorMessage: '');
       } else {
-    
         logoutUser(
             errorMessage:
                 'Sesión inválida. Por favor, inicia sesión de nuevo.');
       }
     } catch (e) {
-    
       logoutUser(errorMessage: 'Ocurrió un error al verificar tu sesión.');
     }
   }
@@ -142,7 +148,7 @@ Future<void> registerUser(String nombre, String apellido, String correo, String 
 enum AuthStatus {
   authenticated,
   notAuthenticated,
-  cheking, 
+  cheking,
 }
 
 class AuthState {
@@ -152,7 +158,7 @@ class AuthState {
   final bool isLoading;
 
   AuthState(
-      {this.authStatus = AuthStatus.cheking, 
+      {this.authStatus = AuthStatus.cheking,
       this.isLoading = false,
       this.user,
       this.errorMessage = ''});
@@ -161,7 +167,7 @@ class AuthState {
       {AuthStatus? authStatus,
       bool? isLoading,
       User? user,
-      bool forceUserNull = false, 
+      bool forceUserNull = false,
       String? errorMessage}) {
     return AuthState(
         authStatus: authStatus ?? this.authStatus,
@@ -175,4 +181,3 @@ class AuthState {
     return 'AuthState(authStatus: $authStatus, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 }
-

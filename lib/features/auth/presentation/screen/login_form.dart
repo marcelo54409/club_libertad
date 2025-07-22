@@ -32,7 +32,11 @@ class LoginForm extends ConsumerWidget {
     final loginFormNotifier = ref.read(loginFormProvider.notifier);
     final textStyles = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
-
+    ref.listen(authProvider, (prev, next) {
+      if (next.authStatus == AuthStatus.authenticated) {
+        context.go('/inicio'); // <-- redirección automática
+      }
+    });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -213,7 +217,7 @@ class LoginForm extends ConsumerWidget {
           onPressed: authState.isLoading
               ? null
               : () {
-                  context.go('/inicio');
+                  loginFormNotifier.onFormSubmitted();
                 },
           style: FilledButton.styleFrom(
             backgroundColor: Colors.red,
