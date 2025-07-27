@@ -2,6 +2,7 @@ import 'package:club_libertad_front/features/shared/widgets/custom_text_form_fie
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:club_libertad_front/features/auth/presentation/providers/register_form_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class RegisterForm extends ConsumerWidget {
   const RegisterForm({super.key});
@@ -79,12 +80,27 @@ class RegisterForm extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         FilledButton(
-          onPressed: () {
-            formNotifier.onFormSubmitted();
+          onPressed: () async {
+            final success = await formNotifier.onFormSubmitted();
+
+            if (success) {
+              // Mostrar snackbar antes de redirigir
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Registro exitoso. Redirigiendo...'),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+
+              // Espera breve antes de ir a inicio
+              await Future.delayed(Duration(seconds: 2));
+              context.go('/inicio');
+            }
           },
           style: FilledButton.styleFrom(
             backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+            foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 14),
             textStyle: textStyles.titleMedium,
             elevation: 3,

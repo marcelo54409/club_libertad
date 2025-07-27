@@ -1,17 +1,22 @@
-
+import 'package:club_libertad_front/features/auth/domain/entities/user.dart';
+import 'package:club_libertad_front/features/auth/presentation/providers/auth_provider.dart';
 import 'package:club_libertad_front/ui/widgets/march_summary.dart';
 import 'package:club_libertad_front/ui/widgets/match_info_card.dart';
 import 'package:club_libertad_front/ui/widgets/player_info.dart';
 import 'package:club_libertad_front/ui/widgets/players_stats_card.dart';
 import 'package:club_libertad_front/ui/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class InicioScreen extends StatelessWidget {
+class InicioScreen extends ConsumerWidget {
   const InicioScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider); // tipo User?
+    final username = user.user?.username ?? 'Usuario';
+
     final players = [
       PlayerStats(
         ranking: 14,
@@ -60,7 +65,7 @@ class InicioScreen extends StatelessWidget {
         totalPlayers: 16,
         nextMatchDate: '03/07/2025',
         circleText: 'Final',
-      ),  
+      ),
     ];
     final statsA = [5, 12, 28];
     final statsB = [3, 15, 22];
@@ -103,15 +108,15 @@ class InicioScreen extends StatelessWidget {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
-                            '¡Hola, Usuario!',
-                            style: TextStyle(
+                            '¡Hola, $username!',
+                            style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Text(
+                          const Text(
                             'Clasificación de jugadores',
                             style: TextStyle(
                               fontSize: 16,

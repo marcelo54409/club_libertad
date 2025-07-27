@@ -212,7 +212,7 @@ class LoginForm extends ConsumerWidget {
         ),
         const SizedBox(height: 12.0),
 
-        // Botón de login
+        // @Botón de login
         FilledButton(
           onPressed: authState.isLoading
               ? null

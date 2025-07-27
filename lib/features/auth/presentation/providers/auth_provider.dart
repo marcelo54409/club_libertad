@@ -90,7 +90,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _setLoggedUser(User user) async {
-    await keyValueStorageService.setKeyValue('token', user.token);
+    await keyValueStorageService.setKeyValue('token', user.accessToken);
     final userJson = UserMapper.userEntityToJson(user);
     await keyValueStorageService.setKeyValue(
         'user_session_data', jsonEncode(userJson));

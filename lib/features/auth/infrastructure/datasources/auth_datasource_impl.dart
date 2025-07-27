@@ -25,6 +25,7 @@ class AuthDatasourceImpl implements AuthDataSource {
     try {
       final response = await dio
           .post('auth/login', data: {'username': nombre, 'password': password});
+      print('Login response data: ${response.data}');
 
       final user = UserMapper.userJsonToEntity(response.data);
       print("aca estoy4");
@@ -41,14 +42,15 @@ class AuthDatasourceImpl implements AuthDataSource {
       }
 
       rethrow; // Re-lanzar la excepción original en otros casos de DioException
-    } catch (e) {
-      throw Exception();
+    } catch (e, st) {
+      print('Error desconocido en login: $e');
+      print('StackTrace: $st');
+      throw CustomError("Error inesperado en login: ${e.toString()}");
     }
   }
 
   @override
-  Future<User> register(
-      String username,  String password) async {
+  Future<User> register(String username, String password) async {
     try {
       final response = await dio.post('auth/register', data: {
         'username': username,
