@@ -1,4 +1,9 @@
-import 'package:club_libertad_front/features/auth/domain/entities/user.dart';
+import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
+
+import 'package:club_libertad_front/data/services/inicio_repository_service_imp.dart';
+import 'package:club_libertad_front/domain/entities/inicio/request/inicio_request.dart';
+import 'package:club_libertad_front/domain/entities/inicio/response/inicio_response.dart';
+import 'package:club_libertad_front/domain/services/inicio_service.dart';
 import 'package:club_libertad_front/features/auth/presentation/providers/auth_provider.dart';
 import 'package:club_libertad_front/ui/widgets/march_summary.dart';
 import 'package:club_libertad_front/ui/widgets/match_info_card.dart';
@@ -8,12 +13,63 @@ import 'package:club_libertad_front/ui/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
-class InicioScreen extends ConsumerWidget {
+class InicioScreen extends ConsumerStatefulWidget {
   const InicioScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InicioScreen> createState() => _InicioScreenState();
+}
+
+class _InicioScreenState extends ConsumerState<InicioScreen> {
+  final InicioService _inicioService = InicioRepositoryServiceImp();
+  List<InicioResponse> _listInicio = [];
+
+  List<TorneosProgresoResponse> _listTorneo = [];
+  List<PartidosProgramadosResponse> _listPartidosProgram = [];
+  List<JugadoresDestacadosResponse> _listJugadoresDest = [];
+
+  void onLoading(bool? loading) {
+    if (loading == null || loading == false) {
+      context.loaderOverlay.hide();
+    } else {
+      context.loaderOverlay.show();
+    }
+  }
+
+  Future<void> loadLastestMatch() async {
+    /* Map<String, dynamic> filters = {
+    };*/
+
+    final responseConfiguracion =
+        await _inicioService.findInicio(InicioRequest(tournamentId: 1));
+
+    if (responseConfiguracion.statusCode == 200) {
+      if (responseConfiguracion.data != null &&
+          responseConfiguracion.data is List) {
+        setState(() {
+          _listInicio = (responseConfiguracion.data as List)
+              .map((item) => InicioResponse.fromJson(item))
+              .toList();
+        });
+      } else {
+        log("La estructura de datos no es una lista o está vacía.");
+        setState(() {
+          _listInicio = [];
+        });
+      }
+      onLoading(false);
+    } else {
+      log("Error al cargar materiales: ${responseConfiguracion.message ?? ''}");
+      setState(() {
+        _listInicio = [];
+      });
+      onLoading(false);
+    }
+  }
+
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider); // tipo User?
     final username = user.user?.username ?? 'Usuario';
 
