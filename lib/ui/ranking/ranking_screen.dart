@@ -79,97 +79,101 @@ class _RankingScreenState extends State<RankingScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const TopBarClub(),
-              const SizedBox(height: 16),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Rankings',
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Clasificación de jugadores',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
               ),
-              const SizedBox(height: 24),
-              const TorneoCardList(),
-              const SizedBox(height: 15),
-              const TuPosicionCard(
-                puestoActual: 3,
-                puestoAnterior: 5,
-                puntaje: 940,
-              ),
-              const SizedBox(height: 15),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+            ],
+          ),
+          child: const SafeArea(
+            child: TopBarClub(),
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IndicadorIconoTexto(
-                    icono: FaIcon(FontAwesomeIcons.trophy),
-                    iconoColor: Colors.amber,
-                    cantidad: '5',
-                    etiqueta: 'Torneos',
+                  Text(
+                    'Rankings',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  IndicadorIconoTexto(
-                    icono: FaIcon(FontAwesomeIcons.medal),
-                    iconoColor: Colors.green,
-                    cantidad: '12',
-                    etiqueta: 'Victorias',
-                  ),
-                  IndicadorIconoTexto(
-                    icono: FaIcon(FontAwesomeIcons.calendar),
-                    iconoColor: Colors.blue,
-                    cantidad: '28',
-                    etiqueta: 'Win Rate',
+                  SizedBox(height: 4),
+                  Text(
+                    'Clasificación de jugadores',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 15),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ToggleFormSelector(
-                  options: const ['General', 'Masculino', 'Femenino'],
-                  selectedIndex: selectedToggleIndex,
-                  onChanged: (index) {
-                    setState(() {
-                      selectedToggleIndex = index;
-                    });
-                  },
-                  selectedColor: Colors.white,
-                  selectedTextColor: Colors.black,
+            ),
+            const SizedBox(height: 24),
+            const TorneoCardList(),
+            const SizedBox(height: 15),
+            const TuPosicionCard(
+              puestoActual: 3,
+              puestoAnterior: 5,
+              puntaje: 940,
+            ),
+            const SizedBox(height: 15),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IndicadorIconoTexto(
+                  icono: FaIcon(FontAwesomeIcons.trophy),
+                  iconoColor: Colors.amber,
+                  cantidad: '5',
+                  etiqueta: 'Torneos',
                 ),
+                IndicadorIconoTexto(
+                  icono: FaIcon(FontAwesomeIcons.medal),
+                  iconoColor: Colors.green,
+                  cantidad: '12',
+                  etiqueta: 'Victorias',
+                ),
+                IndicadorIconoTexto(
+                  icono: FaIcon(FontAwesomeIcons.calendar),
+                  iconoColor: Colors.blue,
+                  cantidad: '28',
+                  etiqueta: 'Win Rate',
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ToggleFormSelector(
+                options: const ['General', 'Masculino', 'Femenino'],
+                selectedIndex: selectedToggleIndex,
+                onChanged: (index) {
+                  setState(() {
+                    selectedToggleIndex = index;
+                  });
+                },
+                selectedColor: Colors.white,
+                selectedTextColor: Colors.black,
               ),
-              const SizedBox(height: 15),
-              RankingDeportistasList(deportistas: filteredDeportistas),
-            ],
-          ),
+            ),
+            const SizedBox(height: 15),
+            RankingDeportistasList(deportistas: filteredDeportistas),
+          ],
         ),
       ),
     );

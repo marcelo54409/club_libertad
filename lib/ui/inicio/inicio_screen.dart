@@ -1,14 +1,16 @@
-import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
+import 'dart:developer';
 
 import 'package:club_libertad_front/data/services/inicio_repository_service_imp.dart';
+import 'package:club_libertad_front/data/services/featured_players_service_impl.dart';
+import 'package:club_libertad_front/data/services/tournaments_in_progress_service_impl.dart';
 import 'package:club_libertad_front/domain/entities/inicio/request/inicio_request.dart';
 import 'package:club_libertad_front/domain/entities/inicio/response/inicio_response.dart';
 import 'package:club_libertad_front/domain/services/inicio_service.dart';
+import 'package:club_libertad_front/domain/services/featured_players_service.dart';
+import 'package:club_libertad_front/domain/services/tournaments_in_progress_service.dart';
 import 'package:club_libertad_front/features/auth/presentation/providers/auth_provider.dart';
 import 'package:club_libertad_front/ui/widgets/march_summary.dart';
-import 'package:club_libertad_front/ui/widgets/match_info_card.dart';
 import 'package:club_libertad_front/ui/widgets/player_info.dart';
-import 'package:club_libertad_front/ui/widgets/players_stats_card.dart';
 import 'package:club_libertad_front/ui/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,11 +26,22 @@ class InicioScreen extends ConsumerStatefulWidget {
 
 class _InicioScreenState extends ConsumerState<InicioScreen> {
   final InicioService _inicioService = InicioRepositoryServiceImp();
+  final FeaturedPlayersService _featuredPlayersService =
+      FeaturedPlayersServiceImpl();
+  final TournamentsInProgressService _tournamentsInProgressService =
+      TournamentsInProgressServiceImpl();
   List<InicioResponse> _listInicio = [];
+  MatchData? _latestMatch;
+  List<FeaturedPlayer> _featuredPlayers = [];
+  List<TournamentInProgress> _tournamentsInProgress = [];
 
-  List<TorneosProgresoResponse> _listTorneo = [];
-  List<PartidosProgramadosResponse> _listPartidosProgram = [];
-  List<JugadoresDestacadosResponse> _listJugadoresDest = [];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadData();
+    });
+  }
 
   void onLoading(bool? loading) {
     if (loading == null || loading == false) {
@@ -38,34 +51,74 @@ class _InicioScreenState extends ConsumerState<InicioScreen> {
     }
   }
 
-  Future<void> loadLastestMatch() async {
-    /* Map<String, dynamic> filters = {
-    };*/
+  Future<void> loadData() async {
+    onLoading(true);
 
+    // Cargar datos en paralelo
+    await Future.wait([
+      loadLastestMatch(),
+      loadFeaturedPlayers(),
+      loadTournamentsInProgress(),
+    ]);
+
+    onLoading(false);
+  }
+
+  Future<void> loadLastestMatch() async {
     final responseConfiguracion =
         await _inicioService.findInicio(InicioRequest(tournamentId: 1));
 
     if (responseConfiguracion.statusCode == 200) {
       if (responseConfiguracion.data != null &&
-          responseConfiguracion.data is List) {
+          responseConfiguracion.data!.isNotEmpty) {
         setState(() {
-          _listInicio = (responseConfiguracion.data as List)
-              .map((item) => InicioResponse.fromJson(item))
-              .toList();
+          _listInicio = responseConfiguracion.data!;
+          _latestMatch = _listInicio.first.data;
         });
       } else {
         log("La estructura de datos no es una lista o está vacía.");
         setState(() {
           _listInicio = [];
+          _latestMatch = null;
         });
       }
-      onLoading(false);
     } else {
-      log("Error al cargar materiales: ${responseConfiguracion.message ?? ''}");
+      log("Error al cargar último partido: ${responseConfiguracion.message ?? ''}");
       setState(() {
         _listInicio = [];
+        _latestMatch = null;
       });
-      onLoading(false);
+    }
+  }
+
+  Future<void> loadFeaturedPlayers() async {
+    final response = await _featuredPlayersService.getFeaturedPlayers(limit: 8);
+
+    if (response.statusCode == 200 && response.data != null) {
+      setState(() {
+        _featuredPlayers = response.data!.data;
+      });
+    } else {
+      log("Error al cargar jugadores destacados: ${response.message}");
+      setState(() {
+        _featuredPlayers = [];
+      });
+    }
+  }
+
+  Future<void> loadTournamentsInProgress() async {
+    final response =
+        await _tournamentsInProgressService.getTournamentsInProgress();
+
+    if (response.statusCode == 200 && response.data != null) {
+      setState(() {
+        _tournamentsInProgress = response.data!.data;
+      });
+    } else {
+      log("Error al cargar torneos en curso: ${response.message}");
+      setState(() {
+        _tournamentsInProgress = [];
+      });
     }
   }
 
@@ -73,18 +126,6 @@ class _InicioScreenState extends ConsumerState<InicioScreen> {
     final user = ref.watch(authProvider); // tipo User?
     final username = user.user?.username ?? 'Usuario';
 
-    final players = [
-      PlayerStats(
-        ranking: 14,
-        imagePath: 'assets/images/escudo.png',
-        name: 'Juan Pérez',
-        position: 'Delantero',
-        city: 'Lima',
-        streak: '3 victorias seguidas',
-        wins: 10,
-        gamesPlayed: 12,
-      ),
-    ];
     final List<MatchSummary> matchSummaryList = [
       MatchSummary(
         imagePath: 'assets/images/escudo.png',
@@ -105,59 +146,34 @@ class _InicioScreenState extends ConsumerState<InicioScreen> {
         time: '16:00',
       ),
     ];
-    final List<MatchInfoCard> matchInfoList = [
-      MatchInfoCard(
-        title: 'Torneo Verano',
-        phase: 'Octavos de final',
-        playersRemaining: 8,
-        totalPlayers: 16,
-        nextMatchDate: '30/06/2025',
-        circleText: 'Semifinal',
-      ),
-      MatchInfoCard(
-        title: 'Torneo Primavera',
-        phase: 'Semifinal',
-        playersRemaining: 4,
-        totalPlayers: 16,
-        nextMatchDate: '03/07/2025',
-        circleText: 'Final',
-      ),
-    ];
-    final statsA = [5, 12, 28];
-    final statsB = [3, 15, 22];
-
-    final statColorsA = PlayerRow.getStatColors(statsA, statsB);
-    final statColorsB = PlayerRow.getStatColors(statsB, statsA);
-
-    final List<PlayerRow> playersRow = [
-      PlayerRow(
-        name: 'Juan Pérez',
-        country: 'Perú',
-        position: 1,
-        avatarPath: 'assets/images/escudo.png',
-        stats: statsA,
-        statColors: statColorsA,
-      ),
-      PlayerRow(
-        name: 'María Gómez',
-        country: 'Argentina',
-        position: 2,
-        avatarPath: 'assets/images/escudo.png',
-        stats: statsB,
-        statColors: statColorsB,
-      ),
-    ];
 
     return Scaffold(
         backgroundColor: Colors.grey[200],
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(80),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const SafeArea(
+              child: TopBarClub(),
+            ),
+          ),
+        ),
         body: SingleChildScrollView(
           child: Column(
             children: [
-              // Topbar
-              TopBarClub(),
-
+              // Header con saludo
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 child: SafeArea(
                   bottom: false,
                   child: Row(
@@ -185,7 +201,6 @@ class _InicioScreenState extends ConsumerState<InicioScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 15),
               Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -223,7 +238,7 @@ class _InicioScreenState extends ConsumerState<InicioScreen> {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              'Último torneo',
+                              'Último partido',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -232,210 +247,325 @@ class _InicioScreenState extends ConsumerState<InicioScreen> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Copa "nombre"',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        const Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Fase',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        ...playersRow
-                            .map((player) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: PlayerRow(
-                                    name: player.name,
-                                    country: player.country,
-                                    position: player.position,
-                                    avatarPath: player.avatarPath,
-                                    stats: player.stats,
-                                    statColors: player.statColors,
-                                  ),
-                                ))
-                            .toList(),
-                        const SizedBox(height: 12),
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: const Text(
-                              'Ganador: Jugador',
-                              style: TextStyle(
-                                color: Colors.white,
+                        if (_latestMatch != null) ...[
+                          Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              _latestMatch!.tournament?.name ??
+                                  'Torneo Desconocido',
+                              style: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
                               ),
                             ),
                           ),
-                        ),
-                        const Divider(
-                          color: Colors.black12,
-                          thickness: 1,
-                          indent: 10,
-                          endIndent: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: Row(
+                          Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              _latestMatch!.round,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Jugador 1
+                          PlayerRow(
+                            name:
+                                '${_latestMatch!.player1.firstName} ${_latestMatch!.player1.lastName}',
+                            country: _latestMatch!.player1.countryCode,
+                            position: _latestMatch!.winnerId ==
+                                    _latestMatch!.player1.id
+                                ? 1
+                                : 2,
+                            avatarPath: 'assets/images/escudo.png',
+                            stats: [
+                              _latestMatch!.aces1,
+                              _latestMatch!.winners1,
+                              _latestMatch!.longestRallySeconds
+                            ],
+                            statColors: [
+                              Colors.green,
+                              Colors.blue,
+                              Colors.orange
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          // Jugador 2
+                          PlayerRow(
+                            name:
+                                '${_latestMatch!.player2.firstName} ${_latestMatch!.player2.lastName}',
+                            country: _latestMatch!.player2.countryCode,
+                            position: _latestMatch!.winnerId ==
+                                    _latestMatch!.player2.id
+                                ? 1
+                                : 2,
+                            avatarPath: 'assets/images/escudo.png',
+                            stats: [
+                              _latestMatch!.aces2,
+                              _latestMatch!.winners2,
+                              _latestMatch!.longestRallySeconds
+                            ],
+                            statColors: [
+                              Colors.green,
+                              Colors.blue,
+                              Colors.orange
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                'Ganador: ${_latestMatch!.winner.firstName} ${_latestMatch!.winner.lastName}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Divider(
+                            color: Colors.black12,
+                            thickness: 1,
+                            indent: 10,
+                            endIndent: 10,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '${_latestMatch!.aces1 + _latestMatch!.aces2}',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      const Text(
+                                        'Aces Totales',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '${_latestMatch!.winners1 + _latestMatch!.winners2}',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      const Text(
+                                        'Winners Totales',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '${_latestMatch!.longestRallySeconds}s',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      const Text(
+                                        'Rally más largo',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(
+                            color: Colors.black12,
+                            thickness: 1,
+                            indent: 10,
+                            endIndent: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: const [
-                                    Text(
-                                      '5',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_month_outlined,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${_latestMatch!.dateTime.day}/${_latestMatch!.dateTime.month}/${_latestMatch!.dateTime.year}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w300,
                                     ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'Aces',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: const [
-                                    Text(
-                                      '12',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.pin_drop_outlined,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _latestMatch!.court,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w300,
                                     ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'Winners',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: const [
-                                    Text(
-                                      '28',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.timer_sharp,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${_latestMatch!.durationMinutes}min',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w300,
                                     ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'Rally más largo',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ),
-                        const Divider(
-                          color: Colors.black12,
-                          thickness: 1,
-                          indent: 10,
-                          endIndent: 10,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.calendar_month_outlined,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Ayer Hora',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
+                          if (_latestMatch!.tournament != null) ...[
+                            const SizedBox(height: 8),
+                            const Divider(
+                              color: Colors.black12,
+                              thickness: 1,
+                              indent: 10,
+                              endIndent: 10,
                             ),
                             Row(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                Icon(
-                                  Icons.pin_drop_outlined,
-                                  size: 14,
+                                Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.sports_tennis,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _latestMatch!.tournament!.surface,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Nombre Cancha',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300,
-                                  ),
+                                Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on_outlined,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _latestMatch!.tournament!.location,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.timer_sharp,
-                                  size: 14,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Tiempo',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                  textAlign: TextAlign.center,
+                                Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.emoji_events_outlined,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _latestMatch!.tournament!.type,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                           ],
-                        ),
+                        ] else ...[
+                          const Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'No hay datos del último partido',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                       ],
                     ),
                   ),
@@ -462,26 +592,226 @@ class _InicioScreenState extends ConsumerState<InicioScreen> {
                         const Padding(
                           padding: EdgeInsets.only(bottom: 12.0),
                           child: Text(
-                            'Información de Torneo',
+                            'Torneos en Curso',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                        ...matchInfoList.map(
-                          (info) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: MatchInfoCard(
-                              title: info.title,
-                              phase: info.phase,
-                              playersRemaining: info.playersRemaining,
-                              totalPlayers: info.totalPlayers,
-                              nextMatchDate: info.nextMatchDate,
-                              circleText: info.circleText,
+                        if (_tournamentsInProgress.isNotEmpty) ...[
+                          ..._tournamentsInProgress.map(
+                            (tournament) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.grey[200]!),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Header del torneo
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                tournament.name,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                '${tournament.type} - Nivel ${tournament.level}',
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green[100],
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            tournament.status,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.green[700],
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+
+                                    // Información del torneo
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.location_on_outlined,
+                                                    size: 16,
+                                                    color: Colors.grey,
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Expanded(
+                                                    child: Text(
+                                                      tournament.location,
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.sports_tennis,
+                                                    size: 16,
+                                                    color: Colors.grey,
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    tournament.surface,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue[50],
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                                '${tournament.currentRegistrations}',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.blue[700],
+                                                ),
+                                              ),
+                                              Text(
+                                                'de ${tournament.totalSlots}',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.blue[600],
+                                                ),
+                                              ),
+                                              const Text(
+                                                'jugadores',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 12),
+
+                                    // Información adicional
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'Inscripción',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${tournament.registrationFee} ${tournament.currency}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            const Text(
+                                              'Puntos',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${tournament.points} pts',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ] else ...[
+                          const Center(
+                            child: Text(
+                              'No hay torneos en curso disponibles',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -570,7 +900,113 @@ class _InicioScreenState extends ConsumerState<InicioScreen> {
                           ],
                         ),
                         SizedBox(height: 8),
-                        PlayerStatsList(players: players),
+                        if (_featuredPlayers.isNotEmpty) ...[
+                          ..._featuredPlayers.map(
+                            (featuredPlayer) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.grey[200]!),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Avatar del jugador
+                                    Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(25),
+                                        image: const DecorationImage(
+                                          image: AssetImage(
+                                              'assets/images/escudo.png'),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    // Información del jugador
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${featuredPlayer.player.firstName} ${featuredPlayer.player.lastName}',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '${featuredPlayer.player.city}, ${featuredPlayer.player.countryCode}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.purple[100],
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              featuredPlayer.highlightText,
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.purple[700],
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Indicador de país
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue[100],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        featuredPlayer.player.countryCode,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue[700],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ] else ...[
+                          const Center(
+                            child: Text(
+                              'No hay jugadores destacados disponibles',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

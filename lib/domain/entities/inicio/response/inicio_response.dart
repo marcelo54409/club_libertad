@@ -3,8 +3,7 @@ import 'dart:convert';
 InicioResponse inicioResponseFromJson(String str) =>
     InicioResponse.fromJson(json.decode(str));
 
-String inicioResponseToJson(InicioResponse data) =>
-    json.encode(data.toJson());
+String inicioResponseToJson(InicioResponse data) => json.encode(data.toJson());
 
 class InicioResponse {
   final bool success;
@@ -26,7 +25,9 @@ class InicioResponse {
         message: json["message"],
         data: json["data"] != null ? MatchData.fromJson(json["data"]) : null,
         error: json["error"],
-        meta: json["meta"] != null ? Map<String, dynamic>.from(json["meta"]) : null,
+        meta: json["meta"] != null
+            ? Map<String, dynamic>.from(json["meta"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -59,6 +60,7 @@ class MatchData {
   final Player player1;
   final Player player2;
   final Player winner;
+  final Tournament? tournament;
 
   MatchData({
     required this.id,
@@ -81,6 +83,7 @@ class MatchData {
     required this.player1,
     required this.player2,
     required this.winner,
+    this.tournament,
   });
 
   factory MatchData.fromJson(Map<String, dynamic> json) => MatchData(
@@ -104,6 +107,9 @@ class MatchData {
         player1: Player.fromJson(json["Player1"]),
         player2: Player.fromJson(json["Player2"]),
         winner: Player.fromJson(json["Winner"]),
+        tournament: json["Tournament"] != null
+            ? Tournament.fromJson(json["Tournament"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -127,6 +133,43 @@ class MatchData {
         "Player1": player1.toJson(),
         "Player2": player2.toJson(),
         "Winner": winner.toJson(),
+        "Tournament": tournament?.toJson(),
+      };
+}
+
+class Tournament {
+  final int id;
+  final String name;
+  final String type;
+  final String surface;
+  final String location;
+  final String status;
+
+  Tournament({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.surface,
+    required this.location,
+    required this.status,
+  });
+
+  factory Tournament.fromJson(Map<String, dynamic> json) => Tournament(
+        id: json["id"],
+        name: json["name"],
+        type: json["type"],
+        surface: json["surface"],
+        location: json["location"],
+        status: json["status"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "type": type,
+        "surface": surface,
+        "location": location,
+        "status": status,
       };
 }
 
@@ -249,6 +292,7 @@ class Torneo {
         "endDate": endDate,
       };
 }
+
 PartidosProgramadosResponse partidosProgramadosResponseFromJson(String str) =>
     PartidosProgramadosResponse.fromJson(json.decode(str));
 
@@ -381,7 +425,241 @@ class Metadata {
         "totalUpcoming": totalUpcoming,
       };
 }
-// Añadir al final del archivo existente
+
+// Estructuras para torneos en curso
+TournamentsInProgressResponse tournamentsInProgressResponseFromJson(
+        String str) =>
+    TournamentsInProgressResponse.fromJson(json.decode(str));
+
+String tournamentsInProgressResponseToJson(
+        TournamentsInProgressResponse data) =>
+    json.encode(data.toJson());
+
+class TournamentsInProgressResponse {
+  final bool success;
+  final String message;
+  final List<TournamentInProgress> data;
+  final dynamic error;
+  final TournamentProgressMeta meta;
+
+  TournamentsInProgressResponse({
+    required this.success,
+    required this.message,
+    required this.data,
+    this.error,
+    required this.meta,
+  });
+
+  factory TournamentsInProgressResponse.fromJson(Map<String, dynamic> json) =>
+      TournamentsInProgressResponse(
+        success: json["success"],
+        message: json["message"],
+        data: List<TournamentInProgress>.from(
+            json["data"].map((x) => TournamentInProgress.fromJson(x))),
+        error: json["error"],
+        meta: TournamentProgressMeta.fromJson(json["meta"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "success": success,
+        "message": message,
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+        "error": error,
+        "meta": meta.toJson(),
+      };
+}
+
+class TournamentInProgress {
+  final int id;
+  final String name;
+  final String type;
+  final String level;
+  final String surface;
+  final String location;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String? prizeMoney;
+  final String registrationFee;
+  final String currency;
+  final String status;
+  final int totalSlots;
+  final int currentRegistrations;
+  final int points;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  TournamentInProgress({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.level,
+    required this.surface,
+    required this.location,
+    required this.startDate,
+    required this.endDate,
+    this.prizeMoney,
+    required this.registrationFee,
+    required this.currency,
+    required this.status,
+    required this.totalSlots,
+    required this.currentRegistrations,
+    required this.points,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory TournamentInProgress.fromJson(Map<String, dynamic> json) =>
+      TournamentInProgress(
+        id: json["id"],
+        name: json["name"],
+        type: json["type"],
+        level: json["level"],
+        surface: json["surface"],
+        location: json["location"],
+        startDate: DateTime.parse(json["startDate"]),
+        endDate: DateTime.parse(json["endDate"]),
+        prizeMoney: json["prizeMoney"],
+        registrationFee: json["registrationFee"],
+        currency: json["currency"],
+        status: json["status"],
+        totalSlots: json["totalSlots"],
+        currentRegistrations: json["currentRegistrations"],
+        points: json["points"],
+        createdAt: DateTime.parse(json["createdAt"]),
+        updatedAt: DateTime.parse(json["updatedAt"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "type": type,
+        "level": level,
+        "surface": surface,
+        "location": location,
+        "startDate": startDate.toIso8601String(),
+        "endDate": endDate.toIso8601String(),
+        "prizeMoney": prizeMoney,
+        "registrationFee": registrationFee,
+        "currency": currency,
+        "status": status,
+        "totalSlots": totalSlots,
+        "currentRegistrations": currentRegistrations,
+        "points": points,
+        "createdAt": createdAt.toIso8601String(),
+        "updatedAt": updatedAt.toIso8601String(),
+      };
+}
+
+class TournamentProgressMeta {
+  final int count;
+
+  TournamentProgressMeta({
+    required this.count,
+  });
+
+  factory TournamentProgressMeta.fromJson(Map<String, dynamic> json) =>
+      TournamentProgressMeta(
+        count: json["count"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "count": count,
+      };
+}
+
+// Estructuras para jugadores destacados
+FeaturedPlayersResponse featuredPlayersResponseFromJson(String str) =>
+    FeaturedPlayersResponse.fromJson(json.decode(str));
+
+String featuredPlayersResponseToJson(FeaturedPlayersResponse data) =>
+    json.encode(data.toJson());
+
+class FeaturedPlayersResponse {
+  final bool success;
+  final String message;
+  final List<FeaturedPlayer> data;
+  final dynamic error;
+  final FeaturedPlayersMeta meta;
+
+  FeaturedPlayersResponse({
+    required this.success,
+    required this.message,
+    required this.data,
+    this.error,
+    required this.meta,
+  });
+
+  factory FeaturedPlayersResponse.fromJson(Map<String, dynamic> json) =>
+      FeaturedPlayersResponse(
+        success: json["success"],
+        message: json["message"],
+        data: List<FeaturedPlayer>.from(
+            json["data"].map((x) => FeaturedPlayer.fromJson(x))),
+        error: json["error"],
+        meta: FeaturedPlayersMeta.fromJson(json["meta"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "success": success,
+        "message": message,
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+        "error": error,
+        "meta": meta.toJson(),
+      };
+}
+
+class FeaturedPlayer {
+  final int id;
+  final int playerId;
+  final String highlightText;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final Player player;
+
+  FeaturedPlayer({
+    required this.id,
+    required this.playerId,
+    required this.highlightText,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.player,
+  });
+
+  factory FeaturedPlayer.fromJson(Map<String, dynamic> json) => FeaturedPlayer(
+        id: json["id"],
+        playerId: json["playerId"],
+        highlightText: json["highlightText"],
+        createdAt: DateTime.parse(json["createdAt"]),
+        updatedAt: DateTime.parse(json["updatedAt"]),
+        player: Player.fromJson(json["Player"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "playerId": playerId,
+        "highlightText": highlightText,
+        "createdAt": createdAt.toIso8601String(),
+        "updatedAt": updatedAt.toIso8601String(),
+        "Player": player.toJson(),
+      };
+}
+
+class FeaturedPlayersMeta {
+  final int count;
+
+  FeaturedPlayersMeta({
+    required this.count,
+  });
+
+  factory FeaturedPlayersMeta.fromJson(Map<String, dynamic> json) =>
+      FeaturedPlayersMeta(
+        count: json["count"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "count": count,
+      };
+}
 
 JugadoresDestacadosResponse jugadoresDestacadosResponseFromJson(String str) =>
     JugadoresDestacadosResponse.fromJson(json.decode(str));
@@ -400,8 +678,8 @@ class JugadoresDestacadosResponse {
 
   factory JugadoresDestacadosResponse.fromJson(Map<String, dynamic> json) =>
       JugadoresDestacadosResponse(
-        players: List<Player>.from(
-            json["players"].map((x) => Player.fromJson(x))),
+        players:
+            List<Player>.from(json["players"].map((x) => Player.fromJson(x))),
         count: json["count"],
       );
 

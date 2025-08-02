@@ -1,14 +1,14 @@
-import 'package:club_libertad_front/data/repositories/endpoints_url.dart';
+import 'dart:convert';
 import 'package:club_libertad_front/domain/entities/generic_result_api.dart';
 import 'package:club_libertad_front/domain/entities/inicio/request/inicio_request.dart';
 import 'package:club_libertad_front/domain/entities/inicio/response/inicio_response.dart';
 import 'package:club_libertad_front/domain/repositories/inicio_repository.dart';
-import 'package:http2/http2.dart';
+import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:utils/toasted/toasted.dart';
 
 class InicioRepositoryImpl implements InicioRepository {
-  final Http2 _http = Http2(url: inicioEndpoint);
+  static const String _baseUrl = 'https://apiclublibertad.wost.pe/api';
 
   @override
   Future<GenericResultAPI<List<InicioResponse>>> findInicio(
@@ -16,28 +16,37 @@ class InicioRepositoryImpl implements InicioRepository {
     var result = GenericResultAPI<List<InicioResponse>>(
         statusCode: 200, message: "Listando Información", data: []);
 
-    String url = "/latest-match";
-    String params = "";
+    String url = "$_baseUrl/home/latest-match";
 
-    if (filters != null) {
-      if (filters.tournamentId != null) {
-        url = "$url/${filters.tournamentId}";
-      }
-
-      params = filters.convertClassToParams();
-      if (params.isNotEmpty) {
-        url = '$url?$params';
-      }
+    if (filters != null && filters.tournamentId != null) {
+      url = "$url/${filters.tournamentId}";
     }
 
     try {
-      var httpResult = await _http.get(url: url);
-      result.statusCode = httpResult.statusCode;
-      result.message = httpResult.message;
-      if (httpResult.statusCode == 200) {
-        final dataJson = httpResult.data as List<dynamic>;
-        result.data =
-            dataJson.map((json) => InicioResponse.fromJson(json)).toList();
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'accept': 'application/json',
+        },
+      );
+
+      result.statusCode = response.statusCode;
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
+        if (jsonData['success'] == true && jsonData['data'] != null) {
+          // La API devuelve un solo objeto, no una lista
+          final inicioResponse = InicioResponse.fromJson(jsonData);
+          result.data = [inicioResponse];
+          result.message = jsonData['message'] ?? 'Datos cargados exitosamente';
+        } else {
+          result.data = [];
+          result.message = jsonData['message'] ?? 'No hay datos disponibles';
+        }
+      } else {
+        result.message = 'Error al cargar datos: ${response.statusCode}';
+        result.data = [];
       }
     } catch (e, stacktrace) {
       result.statusCode = 500;
